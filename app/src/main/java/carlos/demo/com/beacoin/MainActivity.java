@@ -47,7 +47,7 @@ public class MainActivity extends Activity {
         private ArrayList<Ad> ads=new ArrayList();
         private Ad over;
 
-        private boolean executed=false;
+        private boolean executed=false, clicked=false;
         private Canvas canvas;
         private float x,y;
 
@@ -78,36 +78,48 @@ public class MainActivity extends Activity {
         @Override //lienzo donde dibujar el canvas
         protected void onDraw(Canvas canvas) {
             this.canvas=canvas;
-            if(!executed)
+            if(!executed) {
                 once();
-            else{
+                for(Ad ad : ads)
+                    ad.draw(canvas);
+            }else{
                 adToLeft();
                 adToRight();
+
+
+                //draw it!
+                for(int i=0;i<ads.size()-1;i++)
+                    ads.get(i).draw(canvas, pincel);
+
+
+                canvas.save();
+                    if(x<canvas.getWidth()/2)
+                        canvas.rotate( (float) ((canvas.getWidth()*0.5-x)*-0.1) ,canvas.getWidth()/2,canvas.getHeight());
+                    else
+                        canvas.rotate( (float) ((x-canvas.getWidth()*0.5)*0.1) ,canvas.getWidth()/2,canvas.getHeight());
+                    over.draw(canvas);
+                canvas.restore();
             }
 
 
-            for(Ad ad : ads)
-                ad.draw(canvas, pincel);
 
-            //canvas.save();
-            //  canvas.rotate( (float)  ((x*100)/canvas.getWidth()*0.2),canvas.getWidth()/2,canvas.getHeight());
-            //canvas.restore();
 
         }
 
         //if u move ad to right
         public void adToLeft(){
-
-            if(over.getX()+over.getWidth()<canvas.getWidth()*0.25) {
+            if(!over.isTouchDown() && over.isColliding(x,y) &&   x<canvas.getWidth()*0.25) {
                 ads.remove(over);
                 over=ads.get(ads.size()-1);
+
+                clicked=true;
             }
 
         }
 
         //if u move ad to left
         public void adToRight(){
-            if(over.getX()>canvas.getWidth()*0.75) {
+            if(!over.isTouchDown() && over.isColliding(x,y) && x>canvas.getWidth()*0.75) {
                 ArrayList<Ad> aux=new ArrayList();
                 aux.add(
                         locate(ads.get(ads.size()-1))
@@ -119,6 +131,8 @@ public class MainActivity extends Activity {
                 ads=null;
                 ads=aux;
                 over=ads.get(ads.size()-1);
+
+                clicked=true;
             }
         }
 
@@ -159,9 +173,10 @@ public class MainActivity extends Activity {
 
 
 
-            if(event.getAction()==1)
+            if(event.getAction()==1) {
+                //clicked=false;
                 over.setTouchDown(false);
-            else
+            }else
                 over.onClickDrag(x, y);
 
             invalidate();
