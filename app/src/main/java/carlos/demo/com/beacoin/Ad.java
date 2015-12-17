@@ -63,7 +63,8 @@ public class Ad{
     public void rotate(Canvas canvas){
         //canvas.rotate(angle, width / 2, height);
         //canvas.rotate(angle, 0, 0);
-        canvas.rotate(angle, MainActivity.W/2, MainActivity.H);
+
+        //canvas.rotate(angle, MainActivity.W/2, MainActivity.H);
     }
 
     //draw the ad on a canvas
@@ -84,6 +85,35 @@ public class Ad{
             canvas.drawRect(x, y, width, height, pincel);
         canvas.restore();
     }
+
+    //onclick
+    private boolean touchDown=false;
+    private float p1=0,p2=0,p3=0,p4=0;
+
+    public boolean isTouchDown() {
+        return touchDown;
+    }
+
+    public void setTouchDown(boolean touchDown) {
+        this.touchDown = touchDown;
+    }
+
+    public void onClickDrag(float otherX,float otherY){
+
+
+        if(isColliding(otherX,otherY)){//solo si colisiona so podrá hacer el drag
+            if(!touchDown) {
+                touchDown=true;
+                p1 = width - otherX;
+                p2 = height - otherY;
+                p3 = otherX-x;
+                p4 = otherY-y;
+            }
+            dimensions(otherX - p3, otherY-p4, otherX +p1,otherY+p2);
+        }
+
+    }
+
 
     //setters an getters
     public float getX() {
